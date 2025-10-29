@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Object Detection</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>EYE : Assistance for visually impaired people</h1>
+
+    <!-- Image stream styled -->
+        <video id="webcam" width="640" height="480" autoplay></video>
+        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+        <button id="detectBtn">Detect Objects</button>
+        <div id="results">Awaiting detection...</div>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
