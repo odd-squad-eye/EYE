@@ -5,7 +5,7 @@ import traceback
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model_id = "microsoft/Florence-2-base"
+model_id = "microsoft/Florence-2-large"
 
 processor = None
 model = None
