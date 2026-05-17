@@ -1,0 +1,20 @@
+# Core server
+fastapi
+uvicorn[standard]
+python-multipart
+jinja2
+
+# Image processing
+pillow
+opencv-python
+numpy
+
+# YOLO ONNX inference
+onnxruntime
+
+# Florence-2
+transformers
+torch
+torchvision
+einops
+timm

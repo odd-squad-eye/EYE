@@ -1,0 +1,20 @@
+__pycache__/
+*.pyc
+.venv/
+env/
+.env
+temp_frame.jpg
+
+# Ignore downloaded model weights
+weight/
+*.pt
+*.safetensors
+*.bin
+
+# Ignore heavy ONNX models — only keep nano (10MB)
+yolo26x.onnx
+# yolo26n.onnx is intentionally tracked (small enough for Git LFS)
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
