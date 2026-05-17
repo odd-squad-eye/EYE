@@ -60,7 +60,6 @@ fastapi dev server.py
 
 ```
 ├── server.py            # FastAPI backend (REST endpoints)
-├── app.py               # HF Spaces entry point
 ├── onnx_detector.py     # YOLOv10-nano ONNX inference
 ├── florence_server.py   # Florence-2 captioning (single-pass)
 ├── static/
