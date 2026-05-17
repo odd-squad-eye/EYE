@@ -64,6 +64,7 @@ EYE is a **gesture-controlled AI assistant** that uses your phone's camera to de
 
 | Decision | Rationale |
 |----------|-----------|
+| **ONNX Runtime, not Ultralytics** | Ultralytics wraps YOLO in heavy Python preprocessing — ONNX Runtime runs the model directly through its C++ backend, cutting inference overhead and eliminating a ~700 MB dependency |
 | **REST, not WebSockets** | Simpler, more reliable — no persistent connection to manage or reconnect |
 | **Touch gestures, not voice** | Works in noisy environments where voice recognition fails |
 | **No camera streaming** | Camera stays local; only sends a single frame when you tap (privacy + bandwidth) |
