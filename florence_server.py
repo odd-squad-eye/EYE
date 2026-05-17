@@ -26,6 +26,7 @@ def load_model():
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
             trust_remote_code=True,
+            attn_implementation="eager",
             torch_dtype=torch.float16 if device == "cuda" else torch.float32
         ).to(device)
 
