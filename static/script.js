@@ -1,25 +1,13 @@
-// ============================
-// DOM ELEMENTS
-// ============================
-
 const video = document.getElementById("webcam");
 const canvas = document.getElementById("canvas");
 const startOverlay = document.getElementById("startOverlay");
 const ctx = canvas.getContext("2d");
 
-// ============================
-// STATE
-// ============================
-
 let lastSpokenText = "";
 let isSpeaking = false;
 let silenceUntil = 0;
 let isPageVisible = true;
-let isRequestInFlight = false; // Prevent double-taps from flooding the server
-
-// ============================
-// SPEECH OUTPUT
-// ============================
+let isRequestInFlight = false; // prevents double-taps from flooding the server
 
 function speak(message) {
     if (!message) return;
@@ -45,24 +33,12 @@ function speak(message) {
     speechSynthesis.speak(utterance);
 }
 
-// ============================
-// CAPTURE FRAME
-// ============================
-
 function captureFrame() {
     return new Promise((resolve) => {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(
-            (blob) => resolve(blob),
-            "image/jpeg",
-            0.8
-        );
+        canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.8);
     });
 }
-
-// ============================
-// REST API CALLS
-// ============================
 
 async function apiTell() {
     if (isRequestInFlight) return;
@@ -70,7 +46,10 @@ async function apiTell() {
 
     try {
         const blob = await captureFrame();
-        if (!blob) { isRequestInFlight = false; return; }
+        if (!blob) {
+            isRequestInFlight = false;
+            return;
+        }
 
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
@@ -99,7 +78,10 @@ async function apiMore() {
 
     try {
         const blob = await captureFrame();
-        if (!blob) { isRequestInFlight = false; return; }
+        if (!blob) {
+            isRequestInFlight = false;
+            return;
+        }
 
         const formData = new FormData();
         formData.append("file", blob, "frame.jpg");
@@ -120,26 +102,18 @@ async function apiMore() {
     }
 }
 
-// ============================
-// GESTURE SYSTEM
-// ============================
-// Single tap    → Tell (YOLO summary)
-// Double tap    → More (Florence description)
-// Two-finger    → Shut (silence AI for 5s)
-// Long press    → Repeat last spoken text
-
+// gesture setup
 let tapTimer = null;
 let longPressTimer = null;
 let isLongPress = false;
-const DOUBLE_TAP_DELAY = 300; // ms window to detect double tap
+const DOUBLE_TAP_DELAY = 300; 
 
 function setupGestures(target) {
-    // --- Prevent default context menus and text selection ---
+    // prevent default context menus and text selection
     target.addEventListener("contextmenu", (e) => e.preventDefault());
 
-    // ---- TOUCH GESTURES (Mobile) ----
+    // mobile touch gestures
     target.addEventListener("touchstart", (e) => {
-        // Two-finger tap → Shut
         if (e.touches.length >= 2) {
             e.preventDefault();
             clearTimeout(tapTimer);
@@ -148,29 +122,24 @@ function setupGestures(target) {
             return;
         }
 
-        // Start long-press detection
         isLongPress = false;
         longPressTimer = setTimeout(() => {
             isLongPress = true;
             cmdRepeat();
-        }, 600); // 600ms = long press
+        }, 600); 
     }, { passive: false });
 
     target.addEventListener("touchend", (e) => {
         clearTimeout(longPressTimer);
 
-        // Ignore if it was a long press or multi-finger
         if (isLongPress || e.changedTouches.length > 1) return;
         e.preventDefault();
 
-        // Tap detection with double-tap window
         if (tapTimer) {
-            // Second tap within window → Double tap
             clearTimeout(tapTimer);
             tapTimer = null;
             cmdMore();
         } else {
-            // First tap — wait to see if a second comes
             tapTimer = setTimeout(() => {
                 tapTimer = null;
                 cmdTell();
@@ -179,13 +148,11 @@ function setupGestures(target) {
     });
 
     target.addEventListener("touchmove", () => {
-        // Cancel long press if finger moves
         clearTimeout(longPressTimer);
     });
 
-    // ---- MOUSE GESTURES (Desktop fallback) ----
+    // desktop mouse gestures fallback
     target.addEventListener("click", (e) => {
-        // Use similar double-click detection as touch
         if (tapTimer) {
             clearTimeout(tapTimer);
             tapTimer = null;
@@ -198,24 +165,18 @@ function setupGestures(target) {
         }
     });
 
-    // Right-click → Shut (desktop equivalent of two-finger tap)
     target.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         cmdShut();
     });
 
-    // Middle click → Repeat (desktop equivalent of long press)
     target.addEventListener("mousedown", (e) => {
-        if (e.button === 1) { // Middle mouse button
+        if (e.button === 1) { 
             e.preventDefault();
             cmdRepeat();
         }
     });
 }
-
-// ============================
-// COMMANDS
-// ============================
 
 function cmdTell() {
     console.log("CMD: tell (single tap)");
@@ -243,10 +204,6 @@ function cmdRepeat() {
     }
 }
 
-// ============================
-// PAGE VISIBILITY API
-// ============================
-
 document.addEventListener("visibilitychange", () => {
     isPageVisible = !document.hidden;
 
@@ -257,12 +214,8 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-// ============================
-// CAMERA INIT
-// ============================
-
 function initCamera() {
-    // Try rear camera first (mobile), fall back to any camera (laptop)
+    // try rear camera first (mobile), fall back to any camera (laptop)
     navigator.mediaDevices.getUserMedia({
         video: { facingMode: { ideal: "environment" } }
     })
@@ -279,7 +232,7 @@ function initCamera() {
 }
 
 function onCameraReady(stream) {
-    if (!stream || video.srcObject) return; // Prevent double-init
+    if (!stream || video.srcObject) return;
     video.srcObject = stream;
     video.addEventListener("loadedmetadata", () => {
         canvas.width = 640;
@@ -288,14 +241,8 @@ function onCameraReady(stream) {
     });
 }
 
-// ============================
-// CLICK TO START
-// ============================
-
 startOverlay.addEventListener("click", () => {
     startOverlay.classList.add("hidden");
     initCamera();
-
-    // Set up gesture listeners on the body (full-screen black tap target)
     setupGestures(document.body);
 });

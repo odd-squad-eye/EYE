@@ -17,10 +17,7 @@ import logging
 from onnx_detector import detect_image
 from florence_server import generate_caption, load_model
 
-# =====================================
-# STRUCTURED LOGGING
-# =====================================
-
+# configure structured logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)-7s | %(message)s",
@@ -28,15 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("EYE")
 
-# =====================================
-# APP INIT
-# =====================================
-
 app = FastAPI()
-
-# =====================================
-# CORS
-# =====================================
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,103 +34,84 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =====================================
-# STATIC FILES
-# =====================================
-
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# =====================================
-# ISOLATED THREAD POOLS
-# =====================================
-# Separated so heavy Florence inference never starves
-# real-time YOLO safety detections.
-
+# isolated thread pools so heavy Florence inference never starves real-time YOLO detections
 yolo_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="yolo")
 florence_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="florence")
 
-# =====================================
-# FLORENCE TIMEOUT (seconds)
-# =====================================
-
 FLORENCE_TIMEOUT = 45.0
 
-# =====================================
-# FLORENCE MSE CACHE STATE
-# =====================================
-# Simple module-level cache for the last Florence result.
-# Since this is a single-user assistive device, no per-session state needed.
-
+# simple module-level cache for the last Florence result
 last_florence_cv2 = None
 cached_florence_caption = ""
 
-# =====================================
-# STARTUP PRE-WARM
-# =====================================
 
 @app.on_event("startup")
 async def startup_event():
     loop = asyncio.get_event_loop()
     loop.run_in_executor(florence_executor, load_model)
 
-# =====================================
-# HOME
-# =====================================
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
 
-# =====================================
-# HELPERS
-# =====================================
 
 def get_direction(x1, x2, img_width=640):
     center = (x1 + x2) / 2
     third = img_width / 3
-    if center < third: return "on your left"
-    elif center > third * 2: return "on your right"
-    else: return "in front of you"
+    if center < third:
+        return "on your left"
+    elif center > third * 2:
+        return "on your right"
+    else:
+        return "in front of you"
+
 
 def get_distance(x1, y1, x2, y2):
     width = x2 - x1
     height = y2 - y1
     area = width * height
-    if area > 80000: return "very close"
-    elif area > 30000: return "nearby"
-    else: return ""
+    if area > 80000:
+        return "very close"
+    elif area > 30000:
+        return "nearby"
+    else:
+        return ""
+
 
 def build_summary(detections):
     if not detections:
         return "The path looks clear."
+    
     parts = []
     for det in detections:
         label = det["label"]
         x1, y1, x2, y2 = det["box"]
         direction = get_direction(x1, x2)
         distance = get_distance(x1, y1, x2, y2)
+        
         if distance:
             parts.append(f"a {label} {distance} {direction}")
         else:
             parts.append(f"a {label} {direction}")
 
-    if len(parts) == 1: return f"I see {parts[0]}."
-    elif len(parts) == 2: return f"I see {parts[0]} and {parts[1]}."
-    else: return f"I see {', '.join(parts[:-1])}, and {parts[-1]}."
+    if len(parts) == 1:
+        return f"I see {parts[0]}."
+    elif len(parts) == 2:
+        return f"I see {parts[0]} and {parts[1]}."
+    else:
+        return f"I see {', '.join(parts[:-1])}, and {parts[-1]}."
 
-# =====================================
-# MSE SCENE CHANGE MATH
-# =====================================
 
 def calculate_mse(img1, img2):
-    """Calculates Mean Squared Error between two images.
-    NOTE: This runs inside a thread pool, NOT on the event loop.
-    """
+    """Calculates Mean Squared Error between two images (runs inside a thread pool)."""
     if img1 is None or img2 is None:
         return float('inf')
     
-    # Resize to 64x64 and convert to grayscale for lightning-fast math
+    # resize to 64x64 and convert to grayscale for faster math
     i1 = cv2.resize(cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY), (64, 64))
     i2 = cv2.resize(cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY), (64, 64))
     
@@ -149,20 +119,13 @@ def calculate_mse(img1, img2):
     err /= float(i1.shape[0] * i1.shape[1])
     return err
 
-# =====================================
-# HELPER: Read uploaded image
-# =====================================
 
 async def read_upload(file: UploadFile):
-    """Read an uploaded image file and return (raw_bytes, cv2_frame)."""
     raw_bytes = await file.read()
     nparr = np.frombuffer(raw_bytes, np.uint8)
     cv2_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     return raw_bytes, cv2_frame
 
-# =====================================
-# POST /api/tell — Single-shot YOLO
-# =====================================
 
 @app.post("/api/tell")
 async def api_tell(file: UploadFile = File(...)):
@@ -186,15 +149,10 @@ async def api_tell(file: UploadFile = File(...)):
         traceback.print_exc()
         return JSONResponse({"error": "Detection failed"}, status_code=500)
 
-# =====================================
-# POST /api/more — Single-shot Florence
-# =====================================
 
 @app.post("/api/more")
 async def api_more(file: UploadFile = File(...)):
-    """Captures one frame, runs Florence-2, returns a detailed caption.
-    Uses MSE caching: if the scene hasn't changed, returns cached result instantly.
-    """
+    """Captures one frame, runs Florence-2, returns a detailed caption."""
     global last_florence_cv2, cached_florence_caption
 
     try:
@@ -205,7 +163,7 @@ async def api_more(file: UploadFile = File(...)):
 
         loop = asyncio.get_event_loop()
 
-        # Check MSE for scene change (reuse cached caption if scene is the same)
+        # check MSE for scene change to reuse cached caption
         mse = await loop.run_in_executor(
             yolo_executor, calculate_mse, cv2_frame, last_florence_cv2
         )
@@ -215,7 +173,6 @@ async def api_more(file: UploadFile = File(...)):
             logger.info("Scene unchanged (MSE < 1500). Returning cache instantly.")
             return {"caption": cached_florence_caption, "cached": True}
 
-        # Scene changed — run Florence with timeout protection
         logger.info("Scene changed. Running Florence in isolated thread pool...")
         image = Image.open(io.BytesIO(raw_bytes))
 
@@ -224,7 +181,6 @@ async def api_more(file: UploadFile = File(...)):
             timeout=FLORENCE_TIMEOUT
         )
 
-        # Update cache
         last_florence_cv2 = cv2_frame
         cached_florence_caption = caption
 
