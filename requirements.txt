@@ -13,7 +13,7 @@ numpy
 onnxruntime
 
 # Florence-2
-transformers
+transformers<4.42.0
 torch
 torchvision
 einops
