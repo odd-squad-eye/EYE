@@ -197,3 +197,9 @@ async def api_more(file: UploadFile = File(...)):
         logger.error(f"/api/more error: {e}")
         traceback.print_exc()
         return JSONResponse({"error": "Description failed"}, status_code=500)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    # This allows you to run `python server.py` directly without needing the `fastapi dev` command
+    uvicorn.run("server:app", host="0.0.0.0", port=8000, reload=True)
