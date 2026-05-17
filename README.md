@@ -1,6 +1,5 @@
 ---
 title: EYE - AI Vision Assistant
-emoji: 👁️
 colorFrom: gray
 colorTo: black
 sdk: docker
@@ -52,7 +51,7 @@ fastapi dev server.py
 ## Deploy to Hugging Face Spaces
 
 1. Create a new Space with **Docker** SDK
-2. Push this repo (includes `Dockerfile` and `app.py`)
+2. Push this repo (includes `Dockerfile`)
 3. The nano YOLO model (`yolo26n.onnx`, 10MB) is included in the repo
 4. Florence-2 downloads automatically on first launch
 
