@@ -17,6 +17,14 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create a dummy flash_attn stub so transformers' import scanner
+# doesn't reject Florence-2's modeling file on CPU-only containers.
+# The actual flash-attention code path is never used (we set attn_implementation="eager").
+RUN mkdir -p /usr/local/lib/python3.11/site-packages/flash_attn && \
+    echo "# stub – satisfies import check only" > /usr/local/lib/python3.11/site-packages/flash_attn/__init__.py && \
+    echo "" > /usr/local/lib/python3.11/site-packages/flash_attn/bert_padding.py && \
+    echo "def flash_attn_varlen_func(*a,**k): raise NotImplementedError('flash_attn stub')" > /usr/local/lib/python3.11/site-packages/flash_attn/flash_attn_interface.py
+
 # Copy project files
 COPY . .
 

@@ -5,7 +5,7 @@ import traceback
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-model_id = "microsoft/Florence-2-base"
+model_id = "microsoft/Florence-2-large"
 
 processor = None
 model = None
@@ -26,6 +26,7 @@ def load_model():
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
             trust_remote_code=True,
+            attn_implementation="eager",
             torch_dtype=torch.float16 if device == "cuda" else torch.float32
         ).to(device)
 
