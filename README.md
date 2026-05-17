@@ -23,7 +23,7 @@ A distraction-free, gesture-controlled AI assistant that describes what your pho
 
 | Model | Size | Purpose |
 |-------|------|---------|
-| **YOLOv10-nano** (ONNX) | 10 MB | Real-time object detection with spatial awareness |
+| **YOLOv10-X** (ONNX) | 223 MB | Real-time object detection with spatial awareness |
 | **Florence-2-large** (HuggingFace) | ~1.5 GB | Detailed scene captioning on demand |
 
 ## Architecture

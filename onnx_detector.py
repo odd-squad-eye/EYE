@@ -3,16 +3,16 @@ import numpy as np
 import cv2
 import os
 
-# Use nano model (10MB) — fast enough for real-time assistive detection
-# Falls back to larger model if nano isn't found
+# Use the largest available model for maximum detection accuracy
+# Falls back to nano model if X isn't found
 _DIR = os.path.dirname(os.path.abspath(__file__))
 
-if os.path.exists(os.path.join(_DIR, "yolo26n.onnx")):
-    MODEL_PATH = os.path.join(_DIR, "yolo26n.onnx")
-elif os.path.exists(os.path.join(_DIR, "yolo26x.onnx")):
+if os.path.exists(os.path.join(_DIR, "yolo26x.onnx")):
     MODEL_PATH = os.path.join(_DIR, "yolo26x.onnx")
+elif os.path.exists(os.path.join(_DIR, "yolo26n.onnx")):
+    MODEL_PATH = os.path.join(_DIR, "yolo26n.onnx")
 else:
-    raise FileNotFoundError("No YOLO ONNX model found. Place yolo26n.onnx in the project root.")
+    raise FileNotFoundError("No YOLO ONNX model found. Place yolo26x.onnx in the project root.")
 
 COCO_CLASSES = {
     0: "person", 1: "bicycle", 2: "car", 3: "motorcycle", 4: "airplane",
