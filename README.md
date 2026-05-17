@@ -8,13 +8,13 @@ app_port: 7860
 
 <div align="center">
 
-# 👁️ EYE — AI Vision Assistant
+# EYE — AI Vision Assistant
 
 **See the world through sound.**
 
 An AI-powered assistive tool that turns your phone camera into a real-time audio narrator — built for visually impaired users, usable by anyone.
 
-[![Live Demo](https://img.shields.io/badge/🤗_Live_Demo-Hugging_Face-yellow?style=for-the-badge)](https://huggingface.co/spaces/sudo-raj-1/final_eye)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Hugging_Face-yellow?style=for-the-badge)](https://huggingface.co/spaces/sudo-raj-1/final_eye)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-green?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 
@@ -22,45 +22,45 @@ An AI-powered assistive tool that turns your phone camera into a real-time audio
 
 ---
 
-## 🎯 What is EYE?
+## What is EYE?
 
 EYE is a **gesture-controlled AI assistant** that uses your phone's camera to describe the world around you — entirely through audio. No visual UI, no buttons to find, no screen to read.
 
-- **Tap once** → instant object detection ("I see a person nearby on your left")
-- **Tap twice** → rich scene description ("A person standing in a park with trees and a bench")
+- **Tap once** — instant object detection ("I see a person nearby on your left")
+- **Tap twice** — rich scene description ("A person standing in a park with trees and a bench")
 - **Works anywhere** — noisy streets, quiet rooms, indoors or outdoors
 
 > **Why gestures instead of voice commands?** Voice recognition fails in noisy environments — the exact places where a visually impaired user needs assistance most. Simple touch gestures work 100% of the time, everywhere.
 
 ---
 
-## 🧠 How It Works
+## How It Works
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────────┐     ┌──────────────┐
-│ Phone Camera │────▶│  Tap Screen  │────▶│  Capture 1 Frame │────▶│  REST API    │
-└─────────────┘     └──────────────┘     └──────────────────┘     │  /api/tell   │
-                                                                   │  /api/more   │
-                                                                   └──────┬───────┘
-                                                                          │
-                                                          ┌───────────────┴───────────────┐
-                                                          │                               │
-                                                    ┌─────▼─────┐                 ┌───────▼───────┐
-                                                    │  YOLOv10-X │                 │ Florence-2-L  │
-                                                    │  (10ms)    │                 │ (3-10s)       │
-                                                    └─────┬─────┘                 └───────┬───────┘
-                                                          │                               │
-                                                          ▼                               ▼
-                                                   "I see a person             "A woman walking her
-                                                    nearby on your              dog along a tree-lined
-                                                    left."                      sidewalk in the evening."
-                                                          │                               │
-                                                          └───────────┬───────────────────┘
-                                                                      ▼
-                                                              🔊 Text-to-Speech
+┌─────────────┐     ┌──────────────┐     ┌──────────────────┐     ┌──────────────────┐
+│ Phone Camera │────>│  Tap Screen  │────>│  Capture 1 Frame │────>│    REST API      │
+└─────────────┘     └──────────────┘     └──────────────────┘     │  POST /api/tell  │
+                                                                   │  POST /api/more  │
+                                                                   └────────┬─────────┘
+                                                                            │
+                                                            ┌───────────────┴───────────────┐
+                                                            │                               │
+                                                      ┌─────┴─────┐                 ┌───────┴───────┐
+                                                      │  YOLOv10-X │                 │ Florence-2-L  │
+                                                      │  (~100ms)  │                 │ (~5-15s)      │
+                                                      └─────┬─────┘                 └───────┬───────┘
+                                                            │                               │
+                                                            v                               v
+                                                     "I see a person             "A woman walking her
+                                                      nearby on your              dog along a tree-lined
+                                                      left."                      sidewalk in the evening."
+                                                            │                               │
+                                                            └───────────┬───────────────────┘
+                                                                        v
+                                                                Text-to-Speech
 ```
 
-### Key Design Decisions
+### Design Decisions
 
 | Decision | Rationale |
 |----------|-----------|
@@ -72,42 +72,42 @@ EYE is a **gesture-controlled AI assistant** that uses your phone's camera to de
 
 ---
 
-## 🎮 Controls
+## Controls
 
-### On Phone (Primary)
+### Mobile (Primary)
 
-| Gesture | What Happens |
-|---------|-------------|
-| **Tap** | Quick scan — YOLO detects objects, tells you what's around |
-| **Double tap** | Deep look — Florence-2 describes the full scene in detail |
-| **Two-finger tap** | Mute the AI for 5 seconds |
-| **Long press** (600ms) | Repeat the last thing it said |
+| Gesture | Action |
+|---------|--------|
+| **Tap** | Quick scan — YOLO detects objects, tells you what's nearby and where |
+| **Double tap** | Deep look — Florence-2 describes the full scene in natural language |
+| **Two-finger tap** | Mute the assistant for 5 seconds |
+| **Long press** (600ms) | Repeat the last spoken response |
 
-### On Desktop (Testing / Development)
+### Desktop (Development / Testing)
 
-| Input | What Happens |
-|-------|-------------|
+| Input | Action |
+|-------|--------|
 | **Click** | Quick scan (same as tap) |
 | **Double click** | Deep look (same as double tap) |
 | **Right-click** | Mute for 5 seconds |
-| **Middle-click** | Repeat last |
+| **Middle-click** | Repeat last response |
 
 ---
 
-## 🤖 AI Models
+## Models
 
-| Model | Params | Size | Speed (CPU) | Purpose |
-|-------|--------|------|-------------|---------|
-| [**YOLOv10-X**](https://github.com/THU-MIG/yolov10) | 56M | 223 MB | ~50-200ms | Object detection with spatial awareness (direction + distance) |
-| [**Florence-2-large**](https://huggingface.co/microsoft/Florence-2-large) | 770M | ~1.5 GB | ~5-15s | Rich, natural-language scene captioning |
+| Model | Parameters | Size | Speed (CPU) | Role |
+|-------|-----------|------|-------------|------|
+| [YOLOv10-X](https://github.com/THU-MIG/yolov10) | 56M | 223 MB | ~50-200ms | Object detection with spatial awareness (direction + distance) |
+| [Florence-2-large](https://huggingface.co/microsoft/Florence-2-large) | 770M | ~1.5 GB | ~5-15s | Natural-language scene captioning |
 
 ### Why Two Models?
 
-**YOLO** is fast but shallow — it tells you *what* objects exist and *where* they are. **Florence-2** is slow but deep — it understands the *scene* and describes it like a human would. Together, they give you instant awareness (tap) and detailed understanding (double tap) when you need it.
+**YOLO** is fast but shallow — it tells you *what* objects exist and *where* they are relative to you. **Florence-2** is slow but deep — it understands the full *scene* and describes it like a human would. Together, they give instant spatial awareness (tap) and detailed understanding (double tap).
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -115,36 +115,36 @@ EYE is a **gesture-controlled AI assistant** that uses your phone's camera to de
 - A webcam or phone camera
 - ~2 GB disk space (for model downloads)
 
-### Run Locally
+### Local Development
 
 ```bash
-# 1. Clone the repo
+# Clone the repository
 git clone https://github.com/odd-squad-eye/EYE.git
 cd EYE
 git checkout proto-2
 
-# 2. Install dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# 3. Start the server
+# Start the server
 python server.py
 
-# 4. Open in your browser
-#    Laptop:  http://localhost:8000
-#    Phone:   http://<your-laptop-ip>:8000  (same Wi-Fi network)
+# Open in your browser
+#   Laptop:  http://localhost:8000
+#   Phone:   http://<your-laptop-ip>:8000  (same Wi-Fi network)
 ```
 
-> **📱 Phone tip:** Open the URL in Chrome/Safari, tap "Start", and allow camera + microphone permissions. The screen will go black — that's intentional. Just start tapping!
+> **Mobile usage:** Open the URL in Chrome or Safari, tap "Start", and allow camera and microphone permissions. The screen will go black — that is by design. The entire interface is audio-driven.
 
-### Deploy to Hugging Face Spaces
+### Deploying to Hugging Face Spaces
 
-1. Create a new Space → select **Docker** as the SDK
-2. Push this repo (the `Dockerfile` handles everything)
-3. YOLO model is included in the repo; Florence-2 downloads automatically on first launch
+1. Create a new Space and select **Docker** as the SDK
+2. Push this repository (the included `Dockerfile` handles everything)
+3. The YOLO model is bundled in the repo; Florence-2 downloads automatically on first launch
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 EYE/
@@ -174,11 +174,11 @@ EYE/
 
 ---
 
-## 🔌 API Reference
+## API Reference
 
 ### `POST /api/tell`
 
-Fast object detection with spatial context.
+Fast object detection with spatial context. Designed for frequent, low-latency calls.
 
 **Request:** `multipart/form-data` with a `file` field (JPEG image)
 
@@ -189,13 +189,13 @@ Fast object detection with spatial context.
 }
 ```
 
-**Latency:** ~50–200ms on CPU
+**Typical latency:** 50–200ms
 
 ---
 
 ### `POST /api/more`
 
-Detailed scene captioning using Florence-2. Includes scene-change caching — if the scene hasn't changed significantly, returns the cached result instantly.
+Detailed scene captioning powered by Florence-2. Includes scene-change caching — if the scene hasn't changed significantly since the last call, the cached result is returned instantly.
 
 **Request:** `multipart/form-data` with a `file` field (JPEG image)
 
@@ -207,11 +207,11 @@ Detailed scene captioning using Florence-2. Includes scene-change caching — if
 }
 ```
 
-**Latency:** ~5–15s first call, instant if scene unchanged
+**Typical latency:** 5–15s (first call), instant on cache hit
 
 ---
 
-## ⚙️ Technical Details
+## Technical Details
 
 ### Thread Pool Architecture
 
@@ -221,44 +221,42 @@ Detailed scene captioning using Florence-2. Includes scene-change caching — if
 ├────────────────────┬────────────────────┤
 │  YOLO Executor     │  Florence Executor │
 │  (2 threads)       │  (1 thread)        │
-│  ~50ms/inference   │  ~10s/inference    │
+│  ~100ms/call       │  ~10s/call         │
 │                    │                    │
 │  Handles /api/tell │  Handles /api/more │
 └────────────────────┴────────────────────┘
 ```
 
-YOLO and Florence run in **isolated thread pools** so that a slow Florence caption never blocks fast YOLO detection. This ensures the tap-for-detection path stays responsive even while a scene description is processing.
+YOLO and Florence run in **isolated thread pools** so that a slow Florence caption never blocks real-time YOLO detection. This ensures the tap-for-detection path stays responsive even while a scene description is being generated.
 
 ### Scene-Change Detection
 
-Before running Florence-2 (which is expensive), the server compares the current frame against the last one using **Mean Squared Error (MSE)** on downscaled 64×64 grayscale thumbnails. If MSE < 1500, the scene hasn't changed enough to re-run inference — the cached caption is returned instantly.
+Before running Florence-2 (which is computationally expensive), the server compares the current frame against the previous one using **Mean Squared Error (MSE)** on downscaled 64x64 grayscale thumbnails. If MSE < 1500, the scene hasn't changed enough to justify re-running inference, and the cached caption is returned instantly.
 
-### CPU-Only Flash Attention Workaround
+### CPU-Only Deployment (Flash Attention Workaround)
 
-Florence-2's HuggingFace model file imports `flash_attn`, which requires CUDA to install. Since free-tier HF Spaces are CPU-only, the Dockerfile creates a **stub `flash_attn` package** to satisfy the import scanner, and the model is loaded with `attn_implementation="eager"` to use standard PyTorch attention instead.
-
----
-
-## 🛠️ Built With
-
-- **[FastAPI](https://fastapi.tiangolo.com/)** — async Python web framework
-- **[ONNX Runtime](https://onnxruntime.ai/)** — cross-platform ML inference
-- **[YOLOv10](https://github.com/THU-MIG/yolov10)** — real-time object detection
-- **[Florence-2](https://huggingface.co/microsoft/Florence-2-large)** — vision-language model by Microsoft
-- **[Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis)** — browser-native text-to-speech
+Florence-2's model file on HuggingFace imports `flash_attn`, which requires CUDA to compile. Since free-tier HF Spaces run on CPU only, the Dockerfile creates a **stub `flash_attn` package** to satisfy the import scanner, and the model is loaded with `attn_implementation="eager"` to use standard PyTorch attention instead. This is transparent to the end user — the model produces identical outputs.
 
 ---
 
-## 📄 License
+## Built With
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+- [FastAPI](https://fastapi.tiangolo.com/) — async Python web framework
+- [ONNX Runtime](https://onnxruntime.ai/) — cross-platform ML inference engine
+- [YOLOv10](https://github.com/THU-MIG/yolov10) — real-time object detection
+- [Florence-2](https://huggingface.co/microsoft/Florence-2-large) — vision-language model (Microsoft)
+- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis) — browser-native text-to-speech
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
 <div align="center">
 
-**Built with ❤️ by [odd-squad-eye](https://github.com/odd-squad-eye)**
-
-*Making the world more accessible, one tap at a time.*
+**Built by [odd-squad-eye](https://github.com/odd-squad-eye)**
 
 </div>
