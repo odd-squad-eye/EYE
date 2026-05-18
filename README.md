@@ -46,7 +46,7 @@ EYE is a **gesture-controlled AI assistant** that uses your phone's camera to de
                                                             ┌───────────────┴───────────────┐
                                                             │                               │
                                                       ┌─────┴─────┐                 ┌───────┴───────┐
-                                                      │  YOLOv10-X │                 │ Florence-2-L  │
+                                                      │  YOLOv26-X │                 │ Florence-2-L  │
                                                       │  (~100ms)  │                 │ (~5-15s)      │
                                                       └─────┬─────┘                 └───────┬───────┘
                                                             │                               │
@@ -99,7 +99,7 @@ EYE is a **gesture-controlled AI assistant** that uses your phone's camera to de
 
 | Model | Parameters | Size | Speed (CPU) | Role |
 |-------|-----------|------|-------------|------|
-| [YOLOv10-X](https://github.com/THU-MIG/yolov10) | 56M | 223 MB | ~50-200ms | Object detection with spatial awareness (direction + distance) |
+| [YOLOv26-X](https://github.com/THU-MIG/yolov10) | 56M | 223 MB | ~50-200ms | Object detection with spatial awareness (direction + distance) |
 | [Florence-2-large](https://huggingface.co/microsoft/Florence-2-large) | 770M | ~1.5 GB | ~5-15s | Natural-language scene captioning |
 
 ### Why Two Models?
@@ -166,8 +166,8 @@ EYE/
 ├── templates/
 │   └── index.html         # Minimal HTML shell (video + canvas + overlay)
 │
-├── yolo26n.onnx           # YOLOv10 nano model (10 MB, fallback)
-├── yolo26x.onnx           # YOLOv10 X model (223 MB, primary)
+├── yolo26n.onnx           # YOLOv26 nano model (10 MB, fallback)
+├── yolo26x.onnx           # YOLOv26 X model (223 MB, primary)
 ├── Dockerfile             # Production container (Python 3.11-slim + flash_attn stub)
 ├── requirements.txt       # Python dependencies
 └── LICENSE                # MIT
@@ -244,7 +244,7 @@ Florence-2's model file on HuggingFace imports `flash_attn`, which requires CUDA
 
 - [FastAPI](https://fastapi.tiangolo.com/) — async Python web framework
 - [ONNX Runtime](https://onnxruntime.ai/) — cross-platform ML inference engine
-- [YOLOv10](https://github.com/THU-MIG/yolov10) — real-time object detection
+- [YOLOv26](https://github.com/THU-MIG/yolov10) — real-time object detection
 - [Florence-2](https://huggingface.co/microsoft/Florence-2-large) — vision-language model (Microsoft)
 - [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis) — browser-native text-to-speech
 
