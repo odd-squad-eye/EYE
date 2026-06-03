@@ -1,11 +1,3 @@
----
-title: EYE - AI Vision Assistant
-colorFrom: gray
-colorTo: gray
-sdk: docker
-app_port: 7860
----
-
 <div align="center">
 
 # EYE — AI Vision Assistant
